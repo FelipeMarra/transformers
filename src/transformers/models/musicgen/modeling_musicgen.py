@@ -92,7 +92,7 @@ class MusicgenUnconditionalInput(ModelOutput):
     guidance_scale: float = None
 
 
-def shift_tokens_right(input_ids: torch.Tensor, pad_token_id: int, decoder_start_token_id: int):
+def shift_tokens_right(input_ids: torch.Tensor, pad_token_id: int, decoder_start_token_id: int=2048):
     """
     Shift input ids one token to the right.
     """
@@ -118,6 +118,7 @@ class MusicgenSinusoidalPositionalEmbedding(nn.Module):
     def __init__(self, num_positions: int, embedding_dim: int):
         super().__init__()
         self.embedding_dim = embedding_dim
+        self.offset = 1
         self.make_weights(num_positions, embedding_dim)
 
     def make_weights(self, num_embeddings: int, embedding_dim: int):
@@ -2115,7 +2116,7 @@ class MusicgenForConditionalGeneration(PreTrainedModel, GenerationMixin):
 
         if (labels is not None) and (decoder_input_ids is None and decoder_inputs_embeds is None):
             decoder_input_ids = shift_tokens_right(
-                labels, self.config.decoder.pad_token_id, self.config.decoder.decoder_start_token_id
+                labels, self.config.decoder.pad_token_id
             )
 
         elif decoder_input_ids is None and decoder_inputs_embeds is None:
